@@ -1268,3 +1268,790 @@ git format-patch --signature="John Doe" -1
 
 # Create patch with custom subject prefix
 git format-patch --subject-prefix
+
+# Create patch with custom subject prefix
+git format-patch --subject-prefix="BUG-FIX" -1
+
+# Create patch as reply to message ID
+git format-patch --in-reply-to="<20230215121212.GA12345@example.com>" -1
+```
+
+### git am
+
+**Purpose:** Apply patches from mailbox
+
+**Syntax:**
+```bash
+git am [options] [mailbox]
+```
+
+**Options:**
+- `-3, --3way`: Use three-way merge if needed
+- `--ignore-space-change`: Ignore changes in whitespace
+- `--ignore-whitespace`: Ignore all whitespace
+- `--whitespace=<action>`: Handle whitespace errors
+- `--committer-date-is-author-date`: Use author date as committer date
+- `--skip`: Skip the current patch
+- `--abort`: Abort the patching operation
+- `--resolved`: Continue after resolving conflicts
+- `-i, --interactive`: Run interactively
+- `--reject`: Leave rejected hunks in .rej files
+- `-q, --quiet`: Be quiet
+- `-s, --signoff`: Add Signed-off-by line to commit message
+
+**Examples:**
+```bash
+# Apply all patches in directory
+git am patches/*.patch
+
+# Apply with 3-way merge
+git am -3 patches/*.patch
+
+# Apply and sign off
+git am -s patches/*.patch
+
+# Apply interactively
+git am -i patches/*.patch
+
+# Continue after resolving conflicts
+git am --resolved
+
+# Skip current patch
+git am --skip
+
+# Abort am session
+git am --abort
+
+# Apply with committer date same as author date
+git am --committer-date-is-author-date patches/*.patch
+```
+
+### git stash
+
+**Purpose:** Stash changes in a dirty working directory
+
+**Syntax:**
+```bash
+git stash [subcommand]
+```
+
+**Subcommands:**
+- `push [-m <message>]`: Save changes to stash (default if no subcommand)
+- `list`: List stashes
+- `show [stash@{n}]`: Show changes in stash
+- `pop [stash@{n}]`: Apply and remove stash
+- `apply [stash@{n}]`: Apply stash without removing it
+- `branch <branchname> [stash@{n}]`: Create a branch from stash
+- `drop [stash@{n}]`: Remove a stash
+- `clear`: Remove all stashes
+- `create`: Create a stash without storing it
+
+**Options:**
+- `-a, --all`: Include ignored files
+- `-u, --include-untracked`: Include untracked files
+- `-p, --patch`: Interactively select hunks
+- `--keep-index`: Don't stash changes already in the index
+
+**Examples:**
+```bash
+# Stash current changes
+git stash
+
+# Stash with a message
+git stash push -m "WIP: feature implementation"
+
+# Stash including untracked files
+git stash -u
+
+# Stash with interactive selection
+git stash -p
+
+# List all stashes
+git stash list
+
+# Show changes in latest stash
+git stash show
+
+# Show changes with diff
+git stash show -p
+
+# Apply latest stash (keep it in stash list)
+git stash apply
+
+# Apply specific stash
+git stash apply stash@{2}
+
+# Apply and remove latest stash
+git stash pop
+
+# Create a branch from stash
+git stash branch new-branch stash@{1}
+
+# Remove a specific stash
+git stash drop stash@{1}
+
+# Clear all stashes
+git stash clear
+```
+
+## Debugging
+
+### git grep
+
+**Purpose:** Print lines matching a pattern
+
+**Syntax:**
+```bash
+git grep [options] <pattern> [<path>...]
+```
+
+**Options:**
+- `-n, --line-number`: Show line numbers
+- `-i, --ignore-case`: Case insensitive match
+- `-l, --files-with-matches`: Show only filenames
+- `-L, --files-without-match`: Show only the names of files without match
+- `--name-only`: Same as -l
+- `-c, --count`: Show the number of matches per file
+- `-p, --show-function`: Show function context
+- `--and, --or, --not`: Combine patterns
+- `-W, --function-context`: Show whole function
+- `--cached`: Search in index instead of working tree
+- `-A <num>`: Show <num> context lines after match
+- `-B <num>`: Show <num> context lines before match
+- `-C <num>`: Show <num> context lines
+
+**Examples:**
+```bash
+# Basic search
+git grep "function"
+
+# Case insensitive search
+git grep -i "function"
+
+# Show line numbers
+git grep -n "TODO"
+
+# Show only filenames with matches
+git grep -l "TODO"
+
+# Show files without matches
+git grep -L "TODO"
+
+# Count matches per file
+git grep -c "function"
+
+# Show function context
+git grep -p "getElementById"
+
+# Search in specific path
+git grep "import React" src/
+
+# Search in index
+git grep --cached "deprecated"
+
+# Search with context
+git grep -A 2 -B 2 "error handling"
+
+# Complex search (AND condition)
+git grep -e "function" --and -e "return"
+
+# Search in specific commit
+git grep "function" 5e23f12
+```
+
+### git reflog
+
+**Purpose:** Manage reflog information
+
+**Syntax:**
+```bash
+git reflog [subcommand] [options]
+```
+
+**Subcommands:**
+- `show`: Show log of reference states (default)
+- `expire`: Prune old reflog entries
+- `delete`: Delete entries from reflog
+- `exists`: Check if a ref has a reflog
+
+**Options:**
+- `--all`: Process all refs
+- `--expire=<time>`: Prune entries older than specified time
+- `--expire-unreachable=<time>`: Prune unreachable entries older than time
+- `-n, --dry-run`: Just show what would be done
+- `-v, --verbose`: Be verbose
+
+**Examples:**
+```bash
+# Show reflog
+git reflog
+
+# Show reflog for specific branch
+git reflog show feature
+
+# Expire old reflog entries
+git reflog expire --expire=30.days
+
+# Expire unreachable entries
+git reflog expire --expire-unreachable=7.days --all
+
+# Delete a specific reflog entry
+git reflog delete master@{2}
+
+# Check if a ref has a reflog
+git reflog exists feature
+```
+
+### git fsck
+
+**Purpose:** Verify the connectivity and validity of objects in the database
+
+**Syntax:**
+```bash
+git fsck [options]
+```
+
+**Options:**
+- `--unreachable`: Show unreachable objects
+- `--dangling`: Show dangling objects
+- `--no-reflogs`: Do not use reflogs to find reachability
+- `--full`: Check all objects
+- `--connectivity-only`: Check connectivity only
+- `--strict`: Be more strict in finding issues
+- `-v, --verbose`: Be verbose
+
+**Examples:**
+```bash
+# Basic integrity check
+git fsck
+
+# Show dangling objects
+git fsck --dangling
+
+# Show unreachable objects
+git fsck --unreachable
+
+# Full database check
+git fsck --full
+
+# Strict check
+git fsck --strict
+
+# Check without using reflogs
+git fsck --no-reflogs
+```
+
+## Administration
+
+### git gc
+
+**Purpose:** Cleanup unnecessary files and optimize the local repository
+
+**Syntax:**
+```bash
+git gc [options]
+```
+
+**Options:**
+- `--aggressive`: More aggressive optimization
+- `--auto`: Run if needed
+- `--prune=<date>`: Prune objects older than date
+- `--no-prune`: Don't prune any loose objects
+- `-q, --quiet`: Be quiet
+
+**Examples:**
+```bash
+# Standard garbage collection
+git gc
+
+# More aggressive optimization
+git gc --aggressive
+
+# Run only if needed
+git gc --auto
+
+# Run with pruning
+git gc --prune=now
+
+# Quiet operation
+git gc --quiet
+```
+
+### git prune
+
+**Purpose:** Prune all unreachable objects
+
+**Syntax:**
+```bash
+git prune [options]
+```
+
+**Options:**
+- `--dry-run`: Just show what would be removed
+- `--verbose`: Report all removed objects
+- `--expire <time>`: Only expire objects older than time
+
+**Examples:**
+```bash
+# Prune unreachable objects
+git prune
+
+# Show what would be pruned
+git prune --dry-run
+
+# Show details of pruned objects
+git prune --verbose
+
+# Prune objects older than 2 weeks
+git prune --expire="2.weeks.ago"
+```
+
+### git clean
+
+**Purpose:** Remove untracked files from working tree
+
+**Syntax:**
+```bash
+git clean [options]
+```
+
+**Options:**
+- `-n, --dry-run`: Don't actually remove files
+- `-f, --force`: Force removal
+- `-d`: Remove untracked directories too
+- `-x`: Remove ignored files too
+- `-X`: Remove only ignored files
+- `-i, --interactive`: Interactive cleaning
+- `-e <pattern>`: Exclude pattern
+
+**Examples:**
+```bash
+# Preview what would be deleted
+git clean -n
+
+# Force removal of untracked files
+git clean -f
+
+# Remove untracked files and directories
+git clean -fd
+
+# Remove both untracked and ignored files
+git clean -fx
+
+# Remove only ignored files
+git clean -fX
+
+# Interactive cleaning
+git clean -i
+
+# Clean excluding specific patterns
+git clean -f -e "*.log"
+```
+
+## Advanced Operations
+
+### git worktree
+
+**Purpose:** Manage multiple working trees
+
+**Syntax:**
+```bash
+git worktree [subcommand] [options]
+```
+
+**Subcommands:**
+- `add`: Create a new working tree
+- `list`: List details of working trees
+- `lock`: Lock a working tree
+- `move`: Move a working tree
+- `prune`: Prune working tree information
+- `remove`: Remove a working tree
+- `unlock`: Unlock a working tree
+
+**Examples:**
+```bash
+# List working trees
+git worktree list
+
+# Create a new working tree
+git worktree add ../hotfix hotfix-branch
+
+# Create a new branch and working tree
+git worktree add -b emergency-fix ../emergency-fix main
+
+# Remove a working tree
+git worktree remove ../hotfix
+
+# Prune stale working tree information
+git worktree prune
+
+# Lock a working tree
+git worktree lock ../hotfix --reason="Sensitive changes"
+
+# Unlock a working tree
+git worktree unlock ../hotfix
+```
+
+### git submodule
+
+**Purpose:** Initialize, update or inspect submodules
+
+**Syntax:**
+```bash
+git submodule [subcommand] [options]
+```
+
+**Subcommands:**
+- `add`: Add a submodule
+- `status`: Show status of submodules
+- `init`: Initialize submodules
+- `update`: Update submodules
+- `deinit`: Unregister submodules
+- `foreach`: Run command on each submodule
+- `sync`: Sync submodules' URL configuration
+- `absorbgitdirs`: Move .git directories to superproject
+
+**Examples:**
+```bash
+# Add a submodule
+git submodule add https://github.com/username/library.git lib/library
+
+# Initialize submodules
+git submodule init
+
+# Update submodules
+git submodule update
+
+# Initialize and update in one command
+git submodule update --init
+
+# Update recursively (including nested submodules)
+git submodule update --init --recursive
+
+# Execute command in each submodule
+git submodule foreach 'git checkout master'
+
+# Sync remote URL changes
+git submodule sync
+
+# Remove a submodule
+git submodule deinit lib/library
+git rm lib/library
+```
+
+### git filter-branch
+
+**Purpose:** Rewrite branches
+
+**Syntax:**
+```bash
+git filter-branch [options] [--] [<rev-list options>]
+```
+
+**Options:**
+- `--env-filter <command>`: Modify commit environments
+- `--tree-filter <command>`: Rewrite the tree and its contents
+- `--index-filter <command>`: Rewrite the index
+- `--parent-filter <command>`: Rewrite parent relationships
+- `--msg-filter <command>`: Rewrite commit messages
+- `--commit-filter <command>`: Rewrite commit objects
+- `--tag-name-filter <command>`: Rewrite tag names
+- `--subdirectory-filter <dir>`: Only look at history in a subdirectory
+- `--prune-empty`: Prune empty commits
+- `-f, --force`: Force operation
+
+**Examples:**
+```bash
+# Remove a file from entire history
+git filter-branch --index-filter 'git rm --cached --ignore-unmatch password.txt' HEAD
+
+# Change author name/email in history
+git filter-branch --env-filter '
+  if [ "$GIT_AUTHOR_EMAIL" = "old@example.com" ]; then
+    export GIT_AUTHOR_EMAIL="new@example.com"
+    export GIT_AUTHOR_NAME="New Name"
+  fi
+  if [ "$GIT_COMMITTER_EMAIL" = "old@example.com" ]; then
+    export GIT_COMMITTER_EMAIL="new@example.com"
+    export GIT_COMMITTER_NAME="New Name"
+  fi
+' HEAD
+
+# Extract subdirectory into its own repo
+git filter-branch --subdirectory-filter lib HEAD
+
+# Rewrite all commit messages
+git filter-branch --msg-filter 'sed "s/typo/error/g"' HEAD
+
+# Prune empty commits
+git filter-branch --prune-empty HEAD
+```
+
+### git revert
+
+**Purpose:** Revert some existing commits
+
+**Syntax:**
+```bash
+git revert [options] <commit>...
+```
+
+**Options:**
+- `-e, --edit`: Edit commit message
+- `--no-edit`: Don't edit commit message
+- `--no-commit`: Don't commit immediately
+- `-n, --no-commit`: Same as --no-commit
+- `-m <parent-number>`: Parent number for reverting merges
+- `--strategy=<strategy>`: Merge strategy
+- `-s, --signoff`: Add Signed-off-by line
+- `--gpg-sign[=<key-id>]`: GPG-sign commit
+- `--continue`: Continue revert after resolving conflicts
+- `--abort`: Cancel revert operation
+- `--quit`: Conclude revert operation
+
+**Examples:**
+```bash
+# Revert a single commit
+git revert 5e23f12
+
+# Revert multiple commits
+git revert 5e23f12 6f78e95
+
+# Revert a range of commits
+git revert 5e23f12..8e41abc
+
+# Revert without committing
+git revert --no-commit 5e23f12
+
+# Revert a merge commit
+git revert -m 1 5e23f12
+
+# Revert with signed commit
+git revert -S 5e23f12
+
+# Continue revert after resolving conflicts
+git revert --continue
+
+# Abort current revert
+git revert --abort
+```
+
+### git reset
+
+**Purpose:** Reset current HEAD to the specified state
+
+**Syntax:**
+```bash
+git reset [options] [<commit>] [--] [<paths>...]
+```
+
+**Options:**
+- `--soft`: Don't touch index or working tree
+- `--mixed`: Reset index but not working tree (default)
+- `--hard`: Reset index and working tree
+- `--merge`: Reset index and update working tree files that differ
+- `--keep`: Reset index but keep working tree files
+- `-p, --patch`: Interactively select hunks
+- `--no-recurse-submodules`: Don't recurse into submodules
+
+**Examples:**
+```bash
+# Unstage all changes (reset index)
+git reset
+
+# Unstage specific file
+git reset -- file.js
+
+# Soft reset (move HEAD, keep changes staged)
+git reset --soft HEAD~1
+
+# Mixed reset (move HEAD, unstage changes)
+git reset --mixed HEAD~1
+
+# Hard reset (move HEAD, discard all changes)
+git reset --hard HEAD~1
+
+# Reset to specific commit
+git reset --hard 5e23f12
+
+# Interactive reset
+git reset -p HEAD
+
+# Reset a branch to match remote
+git reset --hard origin/main
+```
+
+## Configuration
+
+### git config
+
+**Purpose:** Get and set repository or global options
+
+**Syntax:**
+```bash
+git config [options] [name] [value]
+```
+
+**Options:**
+- `--system`: Use system config file
+- `--global`: Use global config file
+- `--local`: Use repository config file (default)
+- `--worktree`: Use per-worktree config file
+- `-e, --edit`: Open config file in editor
+- `--get`: Get value for name
+- `--get-all`: Get all values for a multi-valued name
+- `--add`: Add a new value
+- `--unset`: Remove a value
+- `--unset-all`: Remove all matching values
+- `--rename-section`: Rename section
+- `--list, -l`: List all variables and values
+
+**Examples:**
+```bash
+# Set global user information
+git config --global user.name "John Doe"
+git config --global user.email "john.doe@example.com"
+
+# Set local (repository-specific) information
+git config --local user.email "work@example.com"
+
+# Set default editor
+git config --global core.editor vim
+
+# Set default branch name
+git config --global init.defaultBranch main
+
+# Configure line endings
+git config --global core.autocrlf input  # For macOS/Linux
+git config --global core.autocrlf true   # For Windows
+
+# Set color UI
+git config --global color.ui auto
+
+# Set alias
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.st status
+git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+# Get a value
+git config user.name
+
+# List all configurations
+git config --list
+
+# Edit global config in editor
+git config --global --edit
+
+# Unset a value
+git config --unset core.autocrlf
+```
+
+## Git Workflows
+
+### Basic Workflow
+
+```bash
+# Start a new feature
+git checkout -b feature-x
+
+# Edit files
+echo "New code" >> file.txt
+
+# Stage and commit
+git add file.txt
+git commit -m "Add new feature X"
+
+# Push to remote
+git push -u origin feature-x
+
+# Switch back to main branch
+git checkout main
+
+# Get latest changes
+git pull
+
+# Merge the feature
+git merge feature-x
+
+# Push the merge
+git push
+```
+
+### Fork and Pull Request Workflow
+
+```bash
+# Clone the forked repository
+git clone https://github.com/yourusername/project.git
+
+# Add upstream remote
+git remote add upstream https://github.com/original/project.git
+
+# Create feature branch
+git checkout -b new-feature
+
+# Make changes and commit
+git add .
+git commit -m "Add new feature"
+
+# Get latest from upstream
+git fetch upstream
+git rebase upstream/main
+
+# Push to your fork
+git push -u origin new-feature
+
+# Now create a pull request on GitHub
+```
+
+### GitFlow Workflow
+
+```bash
+# Initialize GitFlow
+git flow init
+
+# Start a feature
+git flow feature start new-feature
+
+# Finish a feature
+git flow feature finish new-feature
+
+# Start a release
+git flow release start 1.0.0
+
+# Finish a release
+git flow release finish 1.0.0
+
+# Start a hotfix
+git flow hotfix start bugfix
+
+# Finish a hotfix
+git flow hotfix finish bugfix
+```
+
+### Useful Tips
+
+- Always pull before pushing to avoid conflicts
+- Use meaningful commit messages
+- Regularly fetch from upstream when working on forks
+- Use branches for features, fixes, and experiments
+- Clean up local branches after they're merged
+- Set up aliases for commonly used commands
+- Configure global `.gitignore` for temporary files
+
+## Conclusion
+
+This comprehensive guide covers most Git commands and their various options. Git is a powerful tool with many capabilities, and mastering these commands will help you manage your source code efficiently and effectively.
+
+Remember that Git documentation is always available via:
+
+```bash
+git help <command>
+git <command> --help
+man git-<command>
+```
+
+For the latest information, refer to the official Git documentation at https://git-scm.com/docs.
+
+Current Date: 2025-03-07  
+User: dev-zuhaib
